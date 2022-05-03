@@ -1,5 +1,9 @@
 # uspokoysa
-Dead simple Nim app for making timebreaks
+Dead simple Nim app for taking breaks.
+
+Inpired by [pokoy](https://github.com/ttygde/pokoy).
+
+<p align="center"><img src="uspokoysa.gif" alt="uspokoysa"/></p>
 
 ## How it works
 There are short and long breaks.
