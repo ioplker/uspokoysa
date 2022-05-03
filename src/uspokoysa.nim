@@ -1,3 +1,6 @@
+import std/[os, parseutils]
+import strutils
+
 import nigui
 
 
@@ -48,8 +51,7 @@ proc main()
 proc initFaces()
 proc initGui()
 
-proc getDefaultSettings(): Settings
-proc getUserSettings(): Settings
+proc getSettings(): Settings
 
 proc workTimeLoop(event: TimerEvent)
 proc restTimeLoop(event: TimerEvent)
@@ -65,12 +67,13 @@ proc quitApp()
 
 
 proc main() =
+  let settings = getSettings()
   initFaces()
   initGui()
 
 
 proc initFaces() =
-  var faces = [
+  let faces = [
     Face(text: "0_0"), Face(text: "-_-"),
     Face(text: "0_0"), Face(text: "-_-"),
     Face(text: "0_0"), Face(text: "^_^"),
@@ -93,12 +96,12 @@ proc initFaces() =
 proc initGui() =
   app.init()
 
-  var window = newWindow()
+  let window = newWindow()
   window.width = 800
   window.height = 500
   window.alwaysOnTop = true
 
-  var container = newLayoutContainer(Layout_Vertical)
+  let container = newLayoutContainer(Layout_Vertical)
   container.widthMode = WidthMode_Expand
   container.heightMode = HeightMode_Expand
   container.xAlign = XAlign_Center
@@ -120,12 +123,97 @@ proc initGui() =
   app.run()
 
 
-proc getDefaultSettings(): Settings =
-  DefaultSettings
+proc getSettings(): Settings =
+  var settings: Settings
+
+  if fileExists(expandTilde("~" / ".uspokoysarc")):
+    echo "Using config: " & expandTilde("~" / ".uspokoysarc")
+    const configContents = readFile(expandTilde("~" / ".uspokoysarc"))
+
+    var rawConfigLines = configContents.splitLines()
+    var configLines: seq[string]
+
+    # Filtering out comments and empty lines
+    for configString in rawConfigLines:
+      let handledPair = configString.split("#")[0]
+      if handledPair.len > 0:
+        configLines.add(handledPair)
+
+    # Parsing strings with `key: value`
+    for configString in configLines:
+      let pair = configString.split(":")
+      let key = pair[0].strip()
+      let value = pair[1].strip()
+
+      case key:
+        of "shortBreakDuration":
+          var parsedValue: int
+
+          if parseInt(value, parsedValue, 0) == 0:
+            raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
+          else:
+            settings.shortBreakDuration = parsedValue
+
+        of "shortBreakInterval":
+          var parsedValue: int
+
+          if parseInt(value, parsedValue, 0) == 0:
+            raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
+          else:
+            settings.shortBreakInterval = parsedValue
+
+        of "longBreakDuration":
+          var parsedValue: int
+
+          if parseInt(value, parsedValue, 0) == 0:
+            raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
+          else:
+            settings.longBreakDuration = parsedValue
+
+        of "longBreakInterval":
+          var parsedValue: int
+
+          if parseInt(value, parsedValue, 0) == 0:
+            raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
+          else:
+            settings.longBreakInterval = parsedValue
+
+        of "notificationCmd":
+          if value.len == 0:
+            raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
+          else:
+            settings.notificationCmd = value
+
+        of "screenLockCmd":
+          if value.len == 0:
+            raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
+          else:
+            settings.screenLockCmd = value
+
+        else:
+          raise newException(IOError, "Error! Unexpected config parameter: " & key)
 
 
-proc getUserSettings(): Settings =
-  discard
+    settings.shortBreakDuration =
+      if settings.shortBreakDuration == 0: DefaultSettings.shortBreakDuration
+      else: settings.shortBreakDuration
+
+    settings.shortBreakInterval =
+      if settings.shortBreakInterval == 0: DefaultSettings.shortBreakInterval
+      else: settings.shortBreakInterval
+
+    settings.longBreakDuration =
+      if settings.longBreakDuration == 0: DefaultSettings.longBreakDuration
+      else: settings.longBreakDuration
+
+    settings.longBreakInterval =
+      if settings.longBreakInterval == 0: DefaultSettings.longBreakInterval
+      else: settings.longBreakInterval
+
+    settings
+
+  else:
+    DefaultSettings
 
 
 proc workTimeLoop(event: TimerEvent) =
