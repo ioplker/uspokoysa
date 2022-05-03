@@ -50,7 +50,7 @@ var timer: Timer
 
 #[ Methods ]#
 proc main()
-proc initSettings(): Settings
+proc initSettings()
 proc initFaces()
 proc initGui()
 
@@ -69,12 +69,12 @@ proc quitApp()
 
 
 proc main() =
-  var settings = initSettings()
+  initSettings()
   initFaces()
   initGui()
 
 
-proc initSettings(): Settings =
+proc initSettings() =
   var settings: Settings = DefaultSettings
 
   if fileExists(expandTilde("~" / ".uspokoysarc")):
