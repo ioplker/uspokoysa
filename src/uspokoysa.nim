@@ -41,7 +41,7 @@ const
 
 #[ Globals ]#
 var status: Status
-var counter = 4
+var window: Window
 var faceLabel: Label
 var timeLabel: Label
 var face: Face
@@ -54,7 +54,6 @@ proc initSettings()
 proc initFaces()
 proc initGui()
 
-
 proc workTimeLoop(event: TimerEvent)
 proc restTimeLoop(event: TimerEvent)
 
@@ -62,9 +61,6 @@ proc showTimeBreakNotification()
 proc showTimeBreak()
 proc hideTimeBreak()
 
-proc postponeTimeBreak()
-proc resetTimeBreaks()
-proc lockScreen()
 proc quitApp()
 
 
@@ -174,7 +170,10 @@ proc initFaces() =
 proc initGui() =
   app.init()
 
-  let window = newWindow()
+  app.defaultBackgroundColor = rgb(20, 20, 20)
+  app.defaultTextColor = rgb(250, 250, 250)
+
+  window = newWindow()
   window.width = 800
   window.height = 500
   window.alwaysOnTop = true
@@ -197,7 +196,6 @@ proc initGui() =
 
   timer = startRepeatingTimer(1000, workTimeLoop)
 
-  window.show()
   app.run()
 
 
@@ -223,10 +221,12 @@ proc workTimeLoop(event: TimerEvent) =
 
 
 proc restTimeLoop(event: TimerEvent) =
+  showTimeBreak()
   face = face.next
   faceLabel.text = face.text
 
   if status.restCounter == 1:
+    hideTimeBreak()
     timer.stop()
 
     status.restCounter = -1
@@ -247,23 +247,11 @@ proc showTimeBreakNotification() =
 
 
 proc showTimeBreak() =
-  discard
+  window.show()
 
 
 proc hideTimeBreak() =
-  discard
-
-
-proc postponeTimeBreak() =
-  discard
-
-
-proc resetTimeBreaks() =
-  discard
-
-
-proc lockScreen() =
-  discard
+  window.hide()
 
 
 proc quitApp() =

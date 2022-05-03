@@ -48,3 +48,9 @@ You can specify a command to be executed 5 seconds before the break starts. Use 
 ```
 notificationCmd: notify-send -a "uspokoysa" "Uspokoysa!!!!1!!" -t 5000
 ```
+
+### `i3` tweaking
+If you like me (or you *are* me in distant future) are using awesome `i3` desktop manager - here is one helpfull setting to display `uspokoysa` in fullscreen on any current workplace:
+```
+for_window [class=Uspokoysa] floating enable, sticky enable, fullscreen
+```
