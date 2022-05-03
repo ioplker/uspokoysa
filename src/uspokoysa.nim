@@ -1,6 +1,6 @@
 # See codestyle conventions at
 # https://gist.github.com/ioplker/6bdf0de65514499b8dc9c81cfbbb941e
-import std/[os, parseutils]
+import std/[os, parseutils, osproc]
 import strutils
 
 import nigui
@@ -202,6 +202,9 @@ proc initGui() =
 
 
 proc workTimeLoop(event: TimerEvent) =
+  if status.workCounter == 6:
+    showTimeBreakNotification()
+
   if status.workCounter == 1:
     timer.stop()
 
@@ -239,7 +242,8 @@ proc restTimeLoop(event: TimerEvent) =
 
 
 proc showTimeBreakNotification() =
-  discard
+  if status.settings.notificationCmd.len > 0:
+    discard execCmd(status.settings.notificationCmd)
 
 
 proc showTimeBreak() =

@@ -4,5 +4,5 @@ shortBreakDuration: 20
 shortBreakInterval: 15
 longBreakDuration: 5
 longBreakInterval: 3
-#notificationCmd:
+notificationCmd: notify-send -a "uspokoysa" "Uspokoysa!!!!1!!" -t 5000
 #screenLockCmd:
