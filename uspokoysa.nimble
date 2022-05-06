@@ -1,5 +1,5 @@
 #[ Package ]#
-version       = "0.1.0"
+version       = "0.2.0"
 author        = "ioplker"
 description   = "Dead simple Nim app for making timebreaks"
 license       = "BSD-3-Clause"

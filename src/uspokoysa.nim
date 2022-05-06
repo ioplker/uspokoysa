@@ -13,8 +13,9 @@ type
     shortBreakInterval*: float   # in minutes
     longBreakDuration*: float    # in minutes
     longBreakInterval*: int      # in short breaks count
-    notificationCmd*: string
-    screenLockCmd*: string
+    timeBeforeNotification*: int # in seconds
+    shortBreakNotificationCmd*: string
+    longBreakNotificationCmd*: string
 
   Status* = object
     settings*: Settings
@@ -34,8 +35,9 @@ const
     shortBreakInterval: 15,
     longBreakDuration: 5,
     longBreakInterval: 3,
-    notificationCmd: "",
-    screenLockCmd: "",
+    timeBeforeNotification: 5,
+    shortBreakNotificationCmd: "",
+    longBreakNotificationCmd: "",
   )
 
 
@@ -82,7 +84,9 @@ shortBreakDuration: 20
 shortBreakInterval: 15
 longBreakDuration: 5
 longBreakInterval: 3
-notificationCmd: notify-send -a "uspokoysa" "Uspokoysa!!!!1!!" -t 5000
+timeBeforeNotification: 5
+shortBreakNotificationCmd: notify-send -a "uspokoysa" "Uspokoysa!!!!1!!" -t 5000
+longBreakNotificationCmd: notify-send -a "uspokoysa" "Uspokoysa!!!!1!!" -t 5000 -u critical
 """)
     echo "Created default config"
 
@@ -137,17 +141,25 @@ notificationCmd: notify-send -a "uspokoysa" "Uspokoysa!!!!1!!" -t 5000
         else:
           settings.longBreakInterval = parsedValue
 
-      of "notificationCmd":
-        if value.len == 0:
-          raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
-        else:
-          settings.notificationCmd = value
+      of "timeBeforeNotification":
+        var parsedValue: int
 
-      of "screenLockCmd":
+        if parseInt(value, parsedValue, 0) == 0 or parsedValue == 0:
+          raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
+        else:
+          settings.timeBeforeNotification = parsedValue
+
+      of "shortBreakNotificationCmd":
         if value.len == 0:
           raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
         else:
-          settings.screenLockCmd = value
+          settings.shortBreakNotificationCmd = value
+
+      of "longBreakNotificationCmd":
+        if value.len == 0:
+          raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
+        else:
+          settings.longBreakNotificationCmd = value
 
       else:
         raise newException(IOError, "Error! Unexpected config parameter: " & key)
@@ -212,8 +224,7 @@ proc initGui() =
 
 
 proc workTimeLoop(event: TimerEvent) =
-  if status.workCounter == 6:
-    showTimeBreakNotification()
+  showTimeBreakNotification()
 
   if status.workCounter == 1:
     timer.stop()
@@ -254,8 +265,14 @@ proc restTimeLoop(event: TimerEvent) =
 
 
 proc showTimeBreakNotification() =
-  if status.settings.notificationCmd.len > 0:
-    discard execCmd(status.settings.notificationCmd)
+  if status.workCounter == status.settings.timeBeforeNotification:
+    if status.shortBreaksLeft == 0:
+      if status.settings.longBreakNotificationCmd.len > 0:
+        discard execCmd(status.settings.longBreakNotificationCmd)
+
+    else:
+      if status.settings.shortBreakNotificationCmd.len > 0:
+        discard execCmd(status.settings.shortBreakNotificationCmd)
 
 
 proc showTimeBreak() =

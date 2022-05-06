@@ -36,22 +36,28 @@ and so on...
 ```
 
 ## Configuration
-`uspokoysa` uses config file at `~/.uspokoysarc`.
+`uspokoysa` uses config file at `~/.uspokoysarc`. If this file does not exist it will be created with default values.
 
 ### Breaks
-The following params are responsible for break durations and intervals between them (see above for explanation, here are defaults):
+The following params are responsible for break durations, intervals between them and notifications (see above for explanation, here are defaults):
 ```
-shortBreakDuration: 20   # in seconds
-shortBreakInterval: 15   # in minutes
-longBreakDuration: 5     # in minutes
-longBreakInterval: 3     # in short breaks count
+shortBreakDuration: 20    # in seconds
+shortBreakInterval: 15    # in minutes
+longBreakDuration: 5      # in minutes
+longBreakInterval: 3      # in short breaks count
+timeBeforeNotification: 5 # in seconds
+shortBreakNotificationCmd: notify-send -a "uspokoysa" "Uspokoysa!!!!1!!" -t 5000
+longBreakNotificationCmd: notify-send -a "uspokoysa" "Uspokoysa!!!!1!!" -t 5000 -u critical
 ```
 
 ### Break notifications
-You can specify a command to be executed 5 seconds before the break starts. Use `notificationCmd` param in the config file (no command by default!):
-```
-notificationCmd: notify-send -a "uspokoysa" "Uspokoysa!!!!1!!" -t 5000
-```
+You can specify commands to be executed at certain time before breaks start.
+
+Use `timeBeforeNotification` to set at how many seconds before the break notification commands will be executed.
+
+Use `shortBreakNotificationCmd` to set notification command for short breaks.
+
+Use `longBreakNotificationCmd` to set notification command for long breaks.
 
 ### `i3` tweaking
 If you like me (or you *are* me in distant future) are using awesome `i3` desktop manager - here is one helpfull setting to display `uspokoysa` in fullscreen on any current workplace:

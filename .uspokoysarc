@@ -4,4 +4,6 @@ shortBreakDuration: 20
 shortBreakInterval: 15
 longBreakDuration: 5
 longBreakInterval: 3
-notificationCmd: notify-send -a "uspokoysa" "Uspokoysa!!!!1!!" -t 5000
+timeBeforeNotification: 5
+shortBreakNotificationCmd: notify-send -a "uspokoysa" "Uspokoysa!!!!1!!" -t 5000
+longBreakNotificationCmd: notify-send -a "uspokoysa" "Uspokoysa!!!!1!!" -t 5000 -u critical
