@@ -39,7 +39,9 @@ const
   )
 
 
+
 #[ Globals ]#
+let configFileName = getHomeDir() / ".uspokoysarc"
 var status: Status
 var window: Window
 var faceLabel: Label
@@ -73,72 +75,82 @@ proc main() =
 proc initSettings() =
   var settings: Settings = DefaultSettings
 
-  if fileExists(expandTilde("~" / ".uspokoysarc")):
-    echo "Using config: " & expandTilde("~" / ".uspokoysarc")
-    const configContents = readFile(expandTilde("~" / ".uspokoysarc"))
+  # Creating config file
+  if not fileExists(configFileName):
+    writeFile(configFileName, dedent """# Sample `uspokoysa` config
+shortBreakDuration: 20
+shortBreakInterval: 15
+longBreakDuration: 5
+longBreakInterval: 3
+notificationCmd: notify-send -a "uspokoysa" "Uspokoysa!!!!1!!" -t 5000
+""")
+    echo "Created default config"
 
-    var rawConfigLines = configContents.splitLines()
-    var configLines: seq[string]
+  echo "Using config: " & configFileName
+  let configContents = readFile(configFileName)
 
-    # Filtering out comments and empty lines
-    for configString in rawConfigLines:
-      let handledPair = configString.split("#")[0]
-      if handledPair.len > 0:
-        configLines.add(handledPair)
+  let rawConfigLines = configContents.splitLines()
+  var configLines: seq[string]
 
-    # Parsing strings with `key: value` pattern
-    for configString in configLines:
-      let pair = configString.split(":")
-      let key = pair[0].strip()
-      let value = pair[1].strip()
+  # Filtering out comments and empty lines
+  for configString in rawConfigLines:
+    let handledPair = configString.split("#")[0]
+    if handledPair.len > 0:
+      configLines.add(handledPair)
 
-      case key:
-        of "shortBreakDuration":
-          var parsedValue: int
+  # Parsing strings with `key: value` pattern
+  for configString in configLines:
+    let pair = configString.split(":")
+    let key = pair[0].strip()
+    let value = pair[1].strip()
 
-          if parseInt(value, parsedValue, 0) == 0 or parsedValue == 0:
-            raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
-          else:
-            settings.shortBreakDuration = parsedValue
+    case key:
+      of "shortBreakDuration":
+        var parsedValue: int
 
-        of "shortBreakInterval":
-          let parsedValue = parseFloat(value)
-
-          if parsedValue == 0:
-            raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
-          else:
-            settings.shortBreakInterval = parsedValue
-
-        of "longBreakDuration":
-          let parsedValue = parseFloat(value)
-
-          if parsedValue == 0:
-            raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
-          else:
-            settings.longBreakDuration = parsedValue
-
-        of "longBreakInterval":
-          var parsedValue: int
-
-          if parseInt(value, parsedValue, 0) == 0 or parsedValue == 0:
-            raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
-          else:
-            settings.longBreakInterval = parsedValue
-
-        of "notificationCmd":
-          if value.len == 0:
-            raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
-          else:
-            settings.notificationCmd = value
-
-        of "screenLockCmd":
-          if value.len == 0:
-            raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
-          else:
-            settings.screenLockCmd = value
-
+        if parseInt(value, parsedValue, 0) == 0 or parsedValue == 0:
+          raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
         else:
-          raise newException(IOError, "Error! Unexpected config parameter: " & key)
+          settings.shortBreakDuration = parsedValue
+
+      of "shortBreakInterval":
+        let parsedValue = parseFloat(value)
+
+        if parsedValue == 0:
+          raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
+        else:
+          settings.shortBreakInterval = parsedValue
+
+      of "longBreakDuration":
+        let parsedValue = parseFloat(value)
+
+        if parsedValue == 0:
+          raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
+        else:
+          settings.longBreakDuration = parsedValue
+
+      of "longBreakInterval":
+        var parsedValue: int
+
+        if parseInt(value, parsedValue, 0) == 0 or parsedValue == 0:
+          raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
+        else:
+          settings.longBreakInterval = parsedValue
+
+      of "notificationCmd":
+        if value.len == 0:
+          raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
+        else:
+          settings.notificationCmd = value
+
+      of "screenLockCmd":
+        if value.len == 0:
+          raise newException(IOError, "Error! Unexpected config parameter value in string: " & configString)
+        else:
+          settings.screenLockCmd = value
+
+      else:
+        raise newException(IOError, "Error! Unexpected config parameter: " & key)
 
   status.settings = settings
   status.shortBreaksLeft = settings.longBreakInterval
